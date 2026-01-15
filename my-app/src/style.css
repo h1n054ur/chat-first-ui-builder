@@ -325,10 +325,36 @@ body {
 .workspace {
   height: 100vh;
   display: grid;
-  grid-template-columns: 320px 1fr 280px;
+  grid-template-columns: 380px 1fr 280px;
   grid-template-rows: 56px 1fr;
   gap: 0;
   animation: fade-in 0.3s ease-out forwards;
+}
+
+.workspace.sidebar-collapsed {
+  grid-template-columns: 0 1fr 280px;
+}
+
+.workspace.sidebar-collapsed .workspace-sidebar {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+  border-right: none;
+}
+
+.workspace.inspector-collapsed {
+  grid-template-columns: 380px 1fr 0;
+}
+
+.workspace.inspector-collapsed .workspace-inspector {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+  border-left: none;
+}
+
+.workspace.both-collapsed {
+  grid-template-columns: 0 1fr 0;
 }
 
 .workspace-header {
@@ -345,6 +371,7 @@ body {
   background: var(--panel-2);
   border-right: 1px solid var(--line);
   overflow-y: auto;
+  transition: width 0.3s ease, padding 0.3s ease, border 0.3s ease;
 }
 
 .workspace-canvas {
@@ -357,6 +384,7 @@ body {
   background: var(--panel-2);
   border-left: 1px solid var(--line);
   overflow-y: auto;
+  transition: width 0.3s ease, padding 0.3s ease, border 0.3s ease;
 }
 
 /* Preview Frame */
@@ -365,6 +393,65 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
+  transition: max-width 0.3s ease, height 0.3s ease;
+}
+
+/* Viewport Simulator */
+.viewport-desktop {
+  max-width: 100%;
+  width: 100%;
+}
+
+.viewport-tablet {
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.viewport-mobile {
+  max-width: 375px;
+  margin: 0 auto;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent);
+}
+
+.sidebar-toggle-left {
+  left: 380px;
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  border-left: none;
+}
+
+.sidebar-toggle-right {
+  right: 280px;
+  border-radius: var(--radius-xs) 0 0 var(--radius-xs);
+  border-right: none;
+}
+
+.sidebar-collapsed .sidebar-toggle-left {
+  left: 0;
+}
+
+.inspector-collapsed .sidebar-toggle-right {
+  right: 0;
 }
 
 /* Responsive */
