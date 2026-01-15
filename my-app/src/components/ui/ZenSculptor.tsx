@@ -29,12 +29,11 @@ export const ZenSculptor: FC<ZenSculptorProps> = ({ projectId }) => {
       <div class="zen-input-wrapper">
         <form 
           id="zen-form"
-          hx-post="/api/generate"
-          hx-target="#app-root"
-          hx-swap="innerHTML"
-          hx-indicator="#zen-loading"
+          action="/ui/generate"
+          method="POST"
         >
           <input type="hidden" name="projectId" value={projectId || ''} />
+          <input type="hidden" name="vibeId" value="minimalist" />
           
           <div class="relative">
             <input
@@ -44,11 +43,16 @@ export const ZenSculptor: FC<ZenSculptorProps> = ({ projectId }) => {
               placeholder="A hero section with a bold headline and CTA button..."
               autocomplete="off"
               autofocus
+              required
             />
             <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
               <kbd class="chip text-xs px-2 py-1">↵</kbd>
             </div>
           </div>
+          
+          <button type="submit" class="btn-accent w-full mt-4">
+            Generate Component
+          </button>
         </form>
 
         {/* Loading State */}

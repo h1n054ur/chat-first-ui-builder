@@ -72,20 +72,20 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
           {/* Chat Input */}
           <div class="mb-6">
             <div class="text-xs text-muted uppercase tracking-widest mb-3">Nudge</div>
-            <div class="relative">
-              <input
-                type="text"
-                placeholder="Make it calmer..."
-                class="w-full bg-[rgba(255,255,255,0.04)] border border-[var(--line)] rounded-xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-muted focus:outline-none focus:border-[var(--accent)] transition-colors"
-                hx-post="/api/nudge"
-                hx-trigger="keydown[key=='Enter']"
-                hx-target="#preview-content"
-              />
-              <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
-                <kbd class="text-[10px] text-muted px-1.5 py-0.5 rounded bg-[var(--panel)] border border-[var(--line)]">⌘</kbd>
-                <kbd class="text-[10px] text-muted px-1.5 py-0.5 rounded bg-[var(--panel)] border border-[var(--line)]">K</kbd>
+            <form action={`/ui/nudge/${projectId}`} method="POST">
+              <div class="relative">
+                <input
+                  type="text"
+                  name="prompt"
+                  placeholder="Make it calmer..."
+                  class="w-full bg-[rgba(255,255,255,0.04)] border border-[var(--line)] rounded-xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-muted focus:outline-none focus:border-[var(--accent)] transition-colors"
+                  required
+                />
+                <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-lg bg-[var(--accent)] text-white text-xs font-medium hover:bg-[var(--accent)]/80 transition-colors">
+                  Apply
+                </button>
               </div>
-            </div>
+            </form>
           </div>
 
           {/* Quick Nudges */}

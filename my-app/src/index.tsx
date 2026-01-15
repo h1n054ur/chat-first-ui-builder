@@ -166,6 +166,148 @@ app.get('/workspace/:projectId', async (c) => {
   )
 })
 
+// ============================================
+// UI Form Handlers (HTML responses)
+// ============================================
+
+// UI: Handle generate form submission
+app.post('/ui/generate', async (c) => {
+  const formData = await c.req.formData()
+  const prompt = formData.get('prompt') as string
+  const vibeId = formData.get('vibeId') as string || DEFAULT_VIBE_ID
+  
+  if (!prompt || prompt.trim() === '') {
+    return c.redirect('/?error=prompt_required')
+  }
+  
+  // Check for API key
+  const apiKey = c.env.ANTHROPIC_API_KEY
+  if (!apiKey) {
+    return c.redirect('/?error=api_key_missing')
+  }
+  
+  // Create a new project
+  const projectId = generateProjectId()
+  await initSession(c.env, projectId, vibeId)
+  
+  // Get vibe
+  const vibe = getVibe(vibeId)
+  if (!vibe) {
+    return c.redirect('/?error=invalid_vibe')
+  }
+  
+  // Generate component
+  const client = createAIClient({ apiKey })
+  const model = getAIModel(c.env)
+  const result = await generateComponent(client, {
+    prompt,
+    vibe,
+  }, model)
+  
+  if (!result.success || !result.jsx) {
+    return c.redirect(`/?error=generation_failed`)
+  }
+  
+  // Validate and sanitize
+  const validationResult = validateJsx(result.jsx)
+  if (!validationResult.valid) {
+    return c.redirect(`/?error=invalid_jsx`)
+  }
+  
+  const sanitizedJsx = sanitizeJsx(result.jsx)
+  const componentId = `comp_${Date.now()}`
+  const trackedJsx = addTrackingId(sanitizedJsx, componentId)
+  
+  // Update session with the generated component
+  await updateSessionAst(c.env, projectId, {
+    [componentId]: {
+      jsx: trackedJsx,
+      createdAt: new Date().toISOString(),
+    }
+  })
+  
+  // Redirect to workspace
+  return c.redirect(`/workspace/${projectId}`)
+})
+
+// UI: Handle nudge form submission
+app.post('/ui/nudge/:projectId', async (c) => {
+  const projectId = c.req.param('projectId')
+  const formData = await c.req.formData()
+  const prompt = formData.get('prompt') as string
+  
+  if (!prompt || prompt.trim() === '') {
+    return c.redirect(`/workspace/${projectId}?error=prompt_required`)
+  }
+  
+  // Check for API key
+  const apiKey = c.env.ANTHROPIC_API_KEY
+  if (!apiKey) {
+    return c.redirect(`/workspace/${projectId}?error=api_key_missing`)
+  }
+  
+  // Get project state
+  const stateResponse = await getSessionState(c.env, projectId)
+  if (!stateResponse.ok) {
+    return c.redirect('/?error=project_not_found')
+  }
+  
+  const stateData = await stateResponse.json() as { 
+    success: boolean
+    data: { 
+      vibeId: string
+      ast: Record<string, { jsx: string; createdAt: string }>
+    }
+  }
+  
+  const vibeId = stateData.data?.vibeId || DEFAULT_VIBE_ID
+  const vibe = getVibe(vibeId)
+  if (!vibe) {
+    return c.redirect(`/workspace/${projectId}?error=invalid_vibe`)
+  }
+  
+  // Get the first component to nudge
+  const ast = stateData.data?.ast || {}
+  const componentEntries = Object.entries(ast)
+  if (componentEntries.length === 0) {
+    return c.redirect(`/workspace/${projectId}?error=no_components`)
+  }
+  
+  const [componentId, component] = componentEntries[0]
+  
+  // Extract current classes from the component
+  const classMatch = component.jsx.match(/class="([^"]*)"/g) || []
+  const currentClasses = classMatch.flatMap(m => 
+    (m.match(/class="([^"]*)"/) || [])[1]?.split(' ') || []
+  ).filter(Boolean)
+  
+  // Generate nudge
+  const client = createAIClient({ apiKey })
+  const model = getAIModel(c.env)
+  const result = await generateNudge(client, {
+    prompt,
+    vibe,
+    targetElement: 'component',
+    currentClasses,
+  }, model)
+  
+  if (!result.success) {
+    return c.redirect(`/workspace/${projectId}?error=nudge_failed`)
+  }
+  
+  const delta = { add: result.add || [], remove: result.remove || [] }
+  
+  // Apply nudge to AST
+  const patchResult = applyNudgeToAST(ast, componentId, delta)
+  
+  if (patchResult.success) {
+    await updateSessionAst(c.env, projectId, patchResult.ast)
+  }
+  
+  // Redirect back to workspace
+  return c.redirect(`/workspace/${projectId}`)
+})
+
 // Vibe Gallery page (for initial project setup)
 app.get('/vibes', (c) => {
   const vibes = getAllVibes()
