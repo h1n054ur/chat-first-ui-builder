@@ -39,20 +39,13 @@ export const ZenSculptor: FC<ZenSculptorProps> = ({ projectId }) => {
             <input
               type="text"
               name="prompt"
-              class="input-zen pr-32"
+              class="input-zen"
               placeholder="A hero section with a bold headline and CTA button..."
               autocomplete="off"
               autofocus
               required
             />
-            <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <kbd class="chip text-xs px-2 py-1">↵</kbd>
-            </div>
           </div>
-          
-          <button type="submit" class="btn-accent w-full mt-4">
-            Generate Component
-          </button>
         </form>
 
         {/* Loading State */}
