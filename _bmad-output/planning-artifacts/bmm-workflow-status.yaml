@@ -1,0 +1,69 @@
+# Workflow Status Template
+
+# This tracks progress through BMM methodology Analysis, Planning, and Solutioning phases.
+# Implementation phase is tracked separately in sprint-status.yaml
+
+# STATUS DEFINITIONS:
+# ==================
+# Initial Status (before completion):
+#   - required: Must be completed to progress
+#   - optional: Can be completed but not required
+#   - recommended: Strongly suggested but not required
+#   - conditional: Required only if certain conditions met (e.g., if_has_ui)
+#
+# Completion Status:
+#   - {file-path}: File created/found (e.g., "docs/product-brief.md")
+#   - skipped: Optional/conditional workflow that was skipped
+
+generated: "2026-01-15"
+project: "02"
+project_type: "greenfield"
+selected_track: "method"
+field_type: "greenfield"
+workflow_path: "/home/hani/bmad-testing/02/_bmad/bmm/workflows/workflow-status/paths/method-greenfield.yaml"
+workflow_status:
+  - id: "research"
+    status: "/home/hani/bmad-testing/02/_bmad-output/planning-artifacts/research/technical-Chat-first-frontend-UX-UI-builder-research-2026-01-15.md"
+    agent: "analyst"
+    command: "/bmad:bmm:workflows:research"
+    name: "Research"
+  - id: "product-brief"
+    status: "/home/hani/bmad-testing/02/_bmad-output/planning-artifacts/product-brief-02-2026-01-15.md"
+    agent: "analyst"
+    name: "Product Brief"
+    completed_at: "2026-01-15T10:00:00Z"
+  - id: "prd"
+    status: "/home/hani/bmad-testing/02/_bmad-output/planning-artifacts/prd.md"
+    agent: "pm"
+    command: "/bmad:bmm:workflows:create-prd"
+    name: "PRD"
+    completed_at: "2026-01-15T11:00:00Z"
+  - id: "create-ux-design"
+    status: "/home/hani/bmad-testing/02/_bmad-output/planning-artifacts/ux-design-specification.md"
+    agent: "ux-designer"
+    command: "/bmad:bmm:workflows:create-ux-design"
+    name: "UX Design"
+    completed_at: "2026-01-15T12:00:00Z"
+  - id: "create-architecture"
+    status: "/home/hani/bmad-testing/02/_bmad-output/planning-artifacts/architecture.md"
+    agent: "architect"
+    command: "/bmad:bmm:workflows:create-architecture"
+    name: "Architecture"
+    completed_at: "2026-01-15T13:00:00Z"
+  - id: "create-epics-and-stories"
+    status: "/home/hani/bmad-testing/02/_bmad-output/planning-artifacts/epics.md"
+    agent: "pm"
+    command: "/bmad:bmm:workflows:create-epics-and-stories"
+    name: "Epics & Stories"
+    completed_at: "2026-01-15T14:00:00Z"
+  - id: "implementation-readiness"
+    status: "/home/hani/bmad-testing/02/_bmad-output/planning-artifacts/implementation-readiness-report-2026-01-15.md"
+    agent: "pm"
+    command: "/bmad:bmm:workflows:implementation-readiness"
+    name: "Implementation Readiness"
+    completed_at: "2026-01-15T14:30:00Z"
+  - id: "sprint-planning"
+    status: "pending"
+    agent: "sm"
+    command: "/bmad:bmm:workflows:sprint-planning"
+    name: "Sprint Planning"
