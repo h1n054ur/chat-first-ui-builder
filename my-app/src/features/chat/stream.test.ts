@@ -4,7 +4,7 @@ import { formatSSE, STATUS_MESSAGES, type StreamEvent } from './stream'
 describe('Story 2.2: Stream AI Response Status', () => {
   describe('AC1: Status message definitions', () => {
     it('should have planning status', () => {
-      expect(STATUS_MESSAGES.PLANNING).toBe('Planning component structure...')
+      expect(STATUS_MESSAGES.PLANNING).toBe('Planning structure...')
     })
 
     it('should have vibe application status', () => {
@@ -12,15 +12,15 @@ describe('Story 2.2: Stream AI Response Status', () => {
     })
 
     it('should have generating status', () => {
-      expect(STATUS_MESSAGES.GENERATING).toBe('Generating JSX...')
+      expect(STATUS_MESSAGES.GENERATING).toBe('Generating...')
     })
 
     it('should have completion status', () => {
-      expect(STATUS_MESSAGES.COMPLETE).toBe('Generation complete')
+      expect(STATUS_MESSAGES.COMPLETE).toBe('Done')
     })
 
     it('should have error status', () => {
-      expect(STATUS_MESSAGES.ERROR).toBe('An error occurred')
+      expect(STATUS_MESSAGES.ERROR).toBe('Error occurred')
     })
   })
 
@@ -70,11 +70,22 @@ describe('Story 2.2: Stream AI Response Status', () => {
       expect(sse).toContain('event: error')
       expect(sse).toContain('"data":"API error"')
     })
+
+    it('should format fragment event correctly', () => {
+      const event: StreamEvent = {
+        type: 'fragment',
+        data: '<div class="test">',
+        timestamp: 250,
+      }
+      const sse = formatSSE(event)
+      expect(sse).toContain('event: fragment')
+      expect(sse).toContain('"data":"<div class=\\"test\\">"')
+    })
   })
 
   describe('AC3: Stream event types', () => {
     it('should have all required event types', () => {
-      const eventTypes = ['status', 'token', 'complete', 'error']
+      const eventTypes = ['status', 'token', 'fragment', 'complete', 'error']
       
       for (const type of eventTypes) {
         const event: StreamEvent = {

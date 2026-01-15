@@ -11,87 +11,79 @@ stepsCompleted:
   - step-09-functional
   - step-10-nonfunctional
   - step-11-polish
+  - step-e-01-discovery
+  - step-e-02-review
+  - step-e-03-edit
 inputDocuments:
   - product-brief-02-2026-01-15.md
   - technical-Chat-first-frontend-UX-UI-builder-research-2026-01-15.md
+  - brainstorming-session-2026-01-15.md
+  - project-documentation/index.md
 documentCounts:
   briefCount: 1
   researchCount: 1
-  brainstormingCount: 0
-  projectDocsCount: 0
+  brainstormingCount: 1
+  projectDocsCount: 1
 classification:
-  projectType: Developer Tool / Web App
+  projectType: Developer Tool / AI IDE
   domain: Software Development / AI Tooling
-  complexity: Medium
-  projectContext: greenfield
+  complexity: High
+  projectContext: brownfield
 workflowType: 'prd'
+workflow: 'edit'
+lastEdited: '2026-01-15'
+editHistory:
+  - date: '2026-01-15'
+    changes: 'Incorporate Bolt/Replit-style UX, SSE streaming, and Overlay-based architecture to fix rigid UI gaps.'
 ---
 
-# Product Requirements Document - 02
+# Product Requirements Document - 02 (Professional AI IDE)
 
 **Author:** Hani
 **Date:** 2026-01-15
 
 ## Executive Summary
-Project 02 is a chat-first frontend UX/UI builder designed to solve the "AI Handover Gap." Unlike traditional generators that produce rigid scaffolds, 02 focuses on the polish phase—allowing developers and non-techies to iterate on layout, spacing, and visual intent (e.g., "make it calmer") without destroying code structure. It outputs convention-correct, drop-in frontend code for the Bun/Hono/HTMX ecosystem.
+Project 02 is a high-fidelity, "Canvas-First" AI IDE designed to solve the "AI Handover Gap." Unlike traditional generators, 02 provides an immersive, professional sculpting environment parity with tools like Bolt.new and Replit. It enables developers to iterate on layout and visual intent via real-time SSE streaming, outputting production-ready Bun/Hono/HTMX code. The core differentiator is the "Void Shell" architecture—an overlay-based UI that treats the output as the foundation, not just a panel.
 
 ## Success Criteria
 ### User Success
-- **Zero-Cleanup Export:** Users can drop generated code into projects with 0% manual refactoring required.
-- **Intent Alignment:** AI correctly interprets visual "nudges" (e.g., "tighter," "more balanced") >80% of the time.
-- **Sculpting Depth:** Users perform 3+ incremental adjustments per component, indicating active design iteration.
-
-### Business & Strategic Success
-- **Habit Formation:** Developers return to 02 specifically for frontend polish tasks.
-- **Velocity:** Reduces time-to-production for UI components by >50% compared to manual coding.
-- **Viral Quality:** Organic growth driven by "clean code" sharing within the developer community.
+- **Direct Manipulation Mastery:** Users can target elements via "Point-and-Chat" with <100ms interaction latency.
+- **Fluid Creative Flow:** SSE streaming ensures character-by-character code/UI updates, maintaining user engagement during "Thinking" states.
+- **Zero-Cleanup Export:** 100% production-readiness for generated Hono/Tailwind components.
 
 ### Technical Success
-- **Code Acceptance Rate:** >90% of exported code remains unmodified in target projects after 24 hours.
-- **Stack Integrity:** 100% first-try success rate for running components in Bun/Hono.
-- **Real-time Latency:** Preview updates reflect in <200ms using Cloudflare Durable Objects.
+- **TTFT (Time To First Token):** AI generation begins streaming in <500ms.
+- **State Integrity:** Transactional consistency across design moves via Durable Objects.
+- **Sub-Second Sync:** Real-time preview updates reflect visual nudges in <200ms.
 
 ## Product Scope
 ### MVP - Minimum Viable Product
-- **Intent-Driven Chat:** Interpreting spatial nudges via natural language.
-- **Incremental Rendering:** Applying style-only updates to a stable structural AST.
-- **High-Fidelity Preview:** Live rendering using the native Hono/HTMX stack.
-- **Clean Export:** Convention-correct code ready for production deployment.
+- **Void Shell Overlays:** Absolute-positioned tool panels with high-fidelity glassmorphism.
+- **SSE Streaming Pipeline:** Real-time fragment delivery from Claude to the UI.
+- **Digital Clay Interactions:** Direct selection in the preview iframe sending metadata to the host via `postMessage`.
+- **Nudge AST Engine:** Surgical style updates to Tailwind classes.
 
 ### Growth & Future Vision
-- **Growth:** Framework adapters (React/Vue), Design System sync, and Figma-to-Chat bootstrapping.
-- **Vision:** Multiplayer "Design Jamming" and autonomous AI-driven UX audits.
+- **Zoom-Out History:** Spatial 2D plane for exploring previous design iterations.
+- **Predictive Nudging:** Zero-latency client-side CSS transforms before AI response returns.
 
 ## User Journeys
-### Marcus (The Polish-Fatigued Dev)
-- **Pain:** Fighting "Tailwind soup" and destructive AI rewrites.
-- **Journey:** Marcus pastes rigid code into 02. He nudges for "visual air." The AI performs precise spatial adjustments while leaving logic intact.
-- **Outcome:** Marcus achieves professional design polish in minutes and exports production-ready code.
+### Marcus (The Precision Developer)
+- **Journey:** Marcus selects an element directly in the canvas. He types "make it bolder" in the floating OmniBox. He sees the code and UI update instantly as characters stream in.
+- **Outcome:** Total control without UI friction.
 
-### Maya (The Design-Locked Non-Techie)
-- **Pain:** Inability to execute a visual vision without technical skills.
-- **Journey:** Maya selects a "Premium" template. She describes a "luxury magazine" feel. The AI adjusts typography and density. She "sculpts" the UI without touching code.
-- **Outcome:** Maya creates a professional UI and hands off clean code to her developer.
-
-## Domain-Specific Requirements
-### Compliance & Safety
-- **Non-Destructive Alignment:** The Nudge Engine must prioritize style-only edits to prevent logical regressions.
-- **Semantic HTML:** Output must prioritize semantic tags and ARIA attributes for default accessibility (WCAG 2.1 AA).
-
-### Technical Constraints
-- **Sandboxed Execution:** Previews must run in iframes/subdomains to enforce Same-Origin Policy.
-- **Edge-First Architecture:** 100% of rendering logic must execute on Cloudflare Workers/Durable Objects.
-
-## Innovation & Novel Patterns
-- **The "Nudge" Paradigm:** Translating subjective design intent into precise, incremental CSS/layout modifications.
-- **Structural Preservation:** Preventing AI hallucinations by constraining model output to a stable internal AST representation.
+## Innovation Analysis
+- **Canvas-as-Background:** Eliminating the dashboard boundary to maximize focus on the output.
+- **Zero-Refresh DOM Patching:** Updating the preview iframe live during streaming without full reloads.
 
 ## Functional Requirements
 ### 1. Interaction & Orchestration
 - **FR1:** Users can describe components using natural language.
 - **FR2:** Users can provide visual "nudges" to existing generated UI.
-- **FR3:** The System can interpret subjective design intent (e.g., "calm," "tight").
-- **FR4:** The System can stream status updates via SSE during generation.
+- **FR3:** The System can interpret subjective design intent.
+- **FR12:** Real-time SSE streaming of JSX fragments from backend to frontend.
+- **FR13:** Absolute overlay system for floating tool panels using backdrop-filters.
+- **FR15:** Direct element selection via iframe `postMessage` integration.
 
 ### 2. Rendering & State
 - **FR5:** The System can apply visual changes without modifying component hierarchy.
@@ -102,17 +94,12 @@ Project 02 is a chat-first frontend UX/UI builder designed to solve the "AI Hand
 ### 3. Export & Management
 - **FR9:** Users can export components as human-readable Bun/Hono/HTMX code.
 - **FR10:** The System can generate "drop-in" files requiring zero cleanup.
-- **FR11:** Users can initialize projects from a "Vibe Template" library.
 
 ## Non-Functional Requirements
 ### Performance
-- **Preview Latency:** Updates must reflect in <200ms from the receipt of AI fragments.
-- **TTFT:** Time to first token for chat responses must be <500ms.
+- **Streaming Latency:** TTFT < 500ms; character throughput > 20 chars/sec.
+- **Interaction Latency:** < 100ms for element selection highlighting.
 
 ### Security
-- **Sandboxing:** 100% isolation between generated previews and the parent application state.
-- **Sanitization:** All AI-generated fragments must pass DOMPurify checks before injection.
-
-### Reliability
-- **Transactional State:** Zero data loss for session history via Durable Object storage.
-- **WebSocket Hibernation:** Persistent connections must recover in <1s during idle wake-up.
+- **Cross-Origin Isolation:** Using `postMessage` with origin validation for sandbox-host communication.
+- **Fragment Sanitization:** DOMPurify checks on every incoming SSE chunk.
