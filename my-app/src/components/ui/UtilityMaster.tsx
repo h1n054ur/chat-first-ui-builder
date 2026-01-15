@@ -33,8 +33,24 @@ interface UtilityMasterProps {
   history?: HistoryItem[];
   isStreaming?: boolean;
   streamingPhase?: string;
+  streamingError?: string | null;
   thinkingLogs?: ThinkingLog[];
   selectedElement?: { tag: string; classes: string[] } | null;
+}
+
+/**
+ * Basic HTML sanitization to prevent script injection in preview iframe.
+ * Removes <script> tags and on* event handlers from JSX content.
+ * Note: This is defense-in-depth; the iframe sandbox provides primary protection.
+ */
+function sanitizeJsx(jsx: string): string {
+  if (!jsx) return '';
+  return jsx
+    // Remove script tags and their content
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    // Remove inline event handlers (onclick, onerror, etc.)
+    .replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/\bon\w+\s*=\s*\{[^}]*\}/gi, '');
 }
 
 export const UtilityMaster: FC<UtilityMasterProps> = ({ 
@@ -44,9 +60,15 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
   history = [],
   isStreaming = false,
   streamingPhase = 'Generating...',
+  streamingError = null,
   thinkingLogs = [],
   selectedElement = null
 }) => {
+  // Sanitize JSX before rendering in iframe
+  const safeJsx = sanitizeJsx(componentJsx);
+  
+  // Determine terminal state for error handling
+  const terminalHasError = Boolean(streamingError);
   const iframeScript = `
     <script>
       // Story 8.1: Bidirectional postMessage Sync
@@ -95,6 +117,7 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
             <iframe
               id="preview-iframe"
               class="preview-iframe"
+              sandbox="allow-scripts allow-same-origin"
               srcDoc={`<!DOCTYPE html>
 <html>
 <head>
@@ -106,7 +129,7 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
     * { cursor: crosshair !important; }
   </style>
 </head>
-<body>${componentJsx}${iframeScript}</body>
+<body>${safeJsx}${iframeScript}</body>
 </html>`}
               title="Component Preview"
             />
@@ -178,12 +201,12 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
         <div class="control-pill-divider"></div>
         
         <div class="control-pill-section">
-          <button class="viewport-btn" onclick="fetch('/api/projects/'+'{projectId}'+'/undo',{method:'POST'}).then(()=>location.reload())">
+          <button class="viewport-btn" onclick={`fetch('/api/projects/${projectId}/undo',{method:'POST'}).then(()=>location.reload())`}>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
             </svg>
           </button>
-          <button class="viewport-btn" onclick="fetch('/api/projects/'+'{projectId}'+'/redo',{method:'POST'}).then(()=>location.reload())">
+          <button class="viewport-btn" onclick={`fetch('/api/projects/${projectId}/redo',{method:'POST'}).then(()=>location.reload())`}>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6" />
             </svg>
@@ -215,7 +238,7 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
       </button>
 
       {/* Story 6.2: Left Glass Panel - Chat/History */}
-      <aside class="glass-panel panel-left" id="panel-left">
+      <aside class="glass-panel panel-left" id="panel-left" aria-label="Chat and history panel">
         <div class="panel-content">
           {/* Story 7.1 & 7.3: Thinking State */}
           {isStreaming && (
@@ -298,7 +321,7 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
       </aside>
 
       {/* Story 6.2: Right Glass Panel - Code/Inspector */}
-      <aside class="glass-panel panel-right" id="panel-right">
+      <aside class="glass-panel panel-right" id="panel-right" aria-label="Code inspector panel">
         <div class="panel-content">
           {/* Active Vibe */}
           <div class="mb-6">
@@ -357,8 +380,8 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
       </aside>
 
       {/* Story 8.3: Floating OmniBox Command Palette (Cmd+K) */}
-      <div class="omnibox-backdrop" id="omnibox-backdrop" onclick="this.classList.remove('visible'); document.getElementById('omnibox').classList.remove('visible');"></div>
-      <div class="omnibox" id="omnibox">
+      <div class="omnibox-backdrop" id="omnibox-backdrop" onclick="this.classList.remove('visible'); document.getElementById('omnibox').classList.remove('visible');" aria-hidden="true"></div>
+      <div class="omnibox" id="omnibox" role="dialog" aria-modal="true" aria-label="Command palette">
         {selectedElement && (
           <div class="omnibox-context">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -398,7 +421,7 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
             <div class="omnibox-suggestion-shortcut"><kbd>Cmd+E</kbd></div>
           </div>
           
-          <div class="omnibox-suggestion" onclick="fetch('/api/projects/'+'{projectId}'+'/undo',{method:'POST'}).then(()=>location.reload())">
+          <div class="omnibox-suggestion" onclick={`fetch('/api/projects/${projectId}/undo',{method:'POST'}).then(()=>location.reload())`}>
             <div class="omnibox-suggestion-icon">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
@@ -481,13 +504,13 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
       </div>
 
       {/* Story 7.2: Live Thinking Terminal */}
-      <div class={`thinking-terminal ${isStreaming ? 'visible' : ''}`} id="thinking-terminal">
+      <div class={`thinking-terminal ${isStreaming || terminalHasError ? 'visible' : ''} ${terminalHasError ? 'has-error' : ''}`} id="thinking-terminal" role="status" aria-live="polite">
         <div class="thinking-terminal-header">
           <div class="thinking-terminal-status">
-            <div class="pulse"></div>
-            <span class="thinking-terminal-title">AI is thinking</span>
+            <div class={`pulse ${terminalHasError ? 'error' : ''}`}></div>
+            <span class="thinking-terminal-title">{terminalHasError ? 'Error occurred' : 'AI is thinking'}</span>
           </div>
-          <span class="thinking-terminal-phase">{streamingPhase}</span>
+          <span class={`thinking-terminal-phase ${terminalHasError ? 'error' : ''}`}>{terminalHasError ? 'Failed' : streamingPhase}</span>
         </div>
         <div class="thinking-terminal-logs" id="thinking-logs">
           {thinkingLogs.length > 0 ? (
@@ -520,7 +543,7 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
       </div>
 
       {/* Story 9.2: Translucent Code Editor Overlay */}
-      <div class="code-editor-overlay" id="code-editor-overlay">
+      <div class="code-editor-overlay" id="code-editor-overlay" role="region" aria-label="Code editor">
         <div class="code-editor-resize" id="code-editor-resize"></div>
         <div class="code-editor-header">
           <div class="code-editor-tabs">
@@ -637,12 +660,26 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
           });
         }
 
-        // Story 8.1: Handle postMessage from iframe
+        // Story 8.1: Handle postMessage from iframe with origin validation
         window.addEventListener('message', function(e) {
+          // Security: Only accept messages from our own preview iframe
+          const iframe = document.getElementById('preview-iframe');
+          if (!iframe) return;
+          
+          // Validate origin - accept same-origin or blob: URLs (for srcDoc iframes)
+          const isSameOrigin = e.origin === window.location.origin;
+          const isBlobOrNull = e.origin === 'null' || e.origin === ''; // srcDoc iframes report null origin
+          if (!isSameOrigin && !isBlobOrNull) {
+            console.warn('Rejected postMessage from untrusted origin:', e.origin);
+            return;
+          }
+          
           if (e.data && e.data.type === 'element-selected') {
             const data = e.data.data;
+            // Validate expected data structure
+            if (!data || typeof data.tag !== 'string' || !data.rect) return;
+            
             const overlay = document.getElementById('selection-overlay');
-            const iframe = document.getElementById('preview-iframe');
             if (iframe && overlay) {
               const iframeRect = iframe.getBoundingClientRect();
               overlay.style.top = (iframeRect.top + data.rect.top) + 'px';
@@ -651,8 +688,8 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
               overlay.style.height = data.rect.height + 'px';
               overlay.classList.add('visible');
               
-              // Update context display
-              console.log('Selected:', data.tag, data.classes);
+              // Store selected element for targeting
+              window.selectedElementData = data;
             }
           }
         });

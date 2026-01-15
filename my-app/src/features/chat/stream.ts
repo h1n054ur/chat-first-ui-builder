@@ -42,12 +42,21 @@ export const STATUS_MESSAGES = {
   ERROR: 'Error occurred',
 } as const;
 
-/** Thinking log entry for Story 7.2 */
+/** Thinking log entry for Story 7.2 - exported for frontend type checking */
 export interface ThinkingLogEntry {
   timestamp: number;
   phase: string;
   message: string;
   progress: number;
+}
+
+/** Parse a thinking event's data payload */
+export function parseThinkingEvent(data: string): ThinkingLogEntry | null {
+  try {
+    return JSON.parse(data) as ThinkingLogEntry;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -71,6 +80,8 @@ export async function* streamComponentGeneration(
 ): AsyncGenerator<StreamEvent> {
   const startTime = Date.now();
   let accumulatedJsx = '';
+  let lastFragmentLength = 0;
+  const FRAGMENT_INTERVAL = 100; // Emit fragment every ~100 characters
 
   // Story 7.2: Emit planning status immediately (TTFT < 500ms)
   yield {
@@ -142,8 +153,9 @@ export async function* streamComponentGeneration(
           };
         }
         
-        // Also emit fragment for DOM patching every ~100 chars
-        if (accumulatedJsx.length % 100 < text.length) {
+        // Emit fragment for DOM patching every ~100 chars (clearer logic)
+        if (accumulatedJsx.length - lastFragmentLength >= FRAGMENT_INTERVAL) {
+          lastFragmentLength = accumulatedJsx.length;
           yield {
             type: 'fragment',
             data: accumulatedJsx,
