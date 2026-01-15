@@ -6,4 +6,5 @@ export * from './VibeCard';
 export * from './VibeGallery';
 export * from './OmniBox';
 export * from './DiffToast';
-export * from './Shell';
+export * from './ZenSculptor';
+export * from './UtilityMaster';

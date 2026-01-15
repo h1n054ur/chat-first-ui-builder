@@ -14,8 +14,8 @@ import { getAllVibes, getVibe, DEFAULT_VIBE_ID, applyNudgeToAST, validateDelta }
 import { generateVibeCss } from './features/nudge-engine/vibe-css'
 import { VibeGallery } from './components/ui'
 import { VibePreview } from './components/templates'
-import { MainLayout } from './components/layout/MainLayout'
-import { AppShell } from './components/ui/Shell'
+import { ZenSculptor } from './components/ui/ZenSculptor'
+import { UtilityMaster } from './components/ui/UtilityMaster'
 import { 
   getStateManager, 
   initSession, 
@@ -128,9 +128,42 @@ function getAIModel(env: CloudflareBindings): string {
 // Pages
 // ============================================
 
-// Home page - The "Balanced Sculptor" Workspace
+// Home page - Zen Sculptor (Initial Screen)
 app.get('/', (c) => {
-  return c.render(<AppShell />)
+  return c.render(<ZenSculptor />)
+})
+
+// Workspace page - Utility Master (After generation)
+app.get('/workspace/:projectId', async (c) => {
+  const projectId = c.req.param('projectId')
+  
+  // Get project state
+  const response = await getSessionState(c.env, projectId)
+  if (!response.ok) {
+    // Redirect to home if project not found
+    return c.redirect('/')
+  }
+  
+  const stateData = await response.json() as { 
+    success: boolean
+    data: { 
+      vibeId: string
+      ast: Record<string, { jsx: string; createdAt: string }>
+    }
+  }
+  
+  // Get the first component JSX for preview
+  const ast = stateData.data?.ast || {}
+  const firstComponent = Object.values(ast)[0]
+  const componentJsx = firstComponent?.jsx || ''
+  
+  return c.render(
+    <UtilityMaster 
+      projectId={projectId}
+      vibeId={stateData.data?.vibeId || DEFAULT_VIBE_ID}
+      componentJsx={componentJsx}
+    />
+  )
 })
 
 // Vibe Gallery page (for initial project setup)

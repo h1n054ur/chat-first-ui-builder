@@ -20,10 +20,10 @@ describe('Story 1.1: Initialize Project with Starter Template', () => {
       const res = await app.request('/')
       expect(res.status).toBe(200)
       const html = await res.text()
-      // New "Balanced Sculptor" layout uses h-screen and bg-slate-950
-      expect(html).toContain('h-screen')
-      expect(html).toContain('bg-slate-950')
+      // "Zen Sculptor" initial screen with custom CSS classes
+      expect(html).toContain('zen-container')
       expect(html).toContain('02')
+      expect(html).toContain('What are you building')
     })
   })
 
