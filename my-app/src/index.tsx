@@ -130,11 +130,7 @@ function getAIModel(env: CloudflareBindings): string {
 
 // Home page - The "Balanced Sculptor" Workspace
 app.get('/', (c) => {
-  return c.html(
-    <MainLayout title="02 Builder">
-      <AppShell />
-    </MainLayout>
-  )
+  return c.render(<AppShell />)
 })
 
 // Vibe Gallery page (for initial project setup)
