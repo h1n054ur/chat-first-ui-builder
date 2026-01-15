@@ -14,6 +14,8 @@ import { getAllVibes, getVibe, DEFAULT_VIBE_ID, applyNudgeToAST, validateDelta }
 import { generateVibeCss } from './features/nudge-engine/vibe-css'
 import { VibeGallery } from './components/ui'
 import { VibePreview } from './components/templates'
+import { MainLayout } from './components/layout/MainLayout'
+import { AppShell } from './components/ui/Shell'
 import { 
   getStateManager, 
   initSession, 
@@ -126,8 +128,17 @@ function getAIModel(env: CloudflareBindings): string {
 // Pages
 // ============================================
 
-// Home page with vibe gallery
+// Home page - The "Balanced Sculptor" Workspace
 app.get('/', (c) => {
+  return c.html(
+    <MainLayout title="02 Builder">
+      <AppShell />
+    </MainLayout>
+  )
+})
+
+// Vibe Gallery page (for initial project setup)
+app.get('/vibes', (c) => {
   const vibes = getAllVibes()
   const selectedVibeId = c.req.query('vibe') || DEFAULT_VIBE_ID
   const selectedVibe = getVibe(selectedVibeId) || getVibe(DEFAULT_VIBE_ID)!
@@ -137,7 +148,7 @@ app.get('/', (c) => {
       <header class="border-b border-slate-200 bg-white px-6 py-4">
         <div class="flex items-center justify-between">
           <h1 class="text-2xl font-bold text-slate-900">02</h1>
-          <span class="text-sm text-slate-500">Chat-first Frontend UX/UI Builder</span>
+          <span class="text-sm text-slate-500">Select Your Vibe</span>
         </div>
       </header>
       <main class="mx-auto max-w-6xl px-6 py-8">

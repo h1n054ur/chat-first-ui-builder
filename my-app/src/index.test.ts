@@ -20,7 +20,9 @@ describe('Story 1.1: Initialize Project with Starter Template', () => {
       const res = await app.request('/')
       expect(res.status).toBe(200)
       const html = await res.text()
-      expect(html).toContain('min-h-screen')
+      // New "Balanced Sculptor" layout uses h-screen and bg-slate-950
+      expect(html).toContain('h-screen')
+      expect(html).toContain('bg-slate-950')
       expect(html).toContain('02')
     })
   })

@@ -71,3 +71,27 @@ development_status:
   5-1-export-component-code: done
   5-2-generate-zero-cleanup-project-files: done
   epic-5-retrospective: optional
+
+  # Epic 6: Shell & Layout (The "Balanced Sculptor" Frame)
+  epic-6: in-progress
+  6-1-three-tier-main-layout: ready-for-dev
+  6-2-app-chrome-and-branding: ready-for-dev
+  6-3-responsive-viewport-simulator: ready-for-dev
+
+  # Epic 7: Omni-Interaction (The Chat & Command Shell)
+  epic-7: backlog
+  7-1-floating-omnibox: ready-for-dev
+  7-2-intent-aware-chat-interface: ready-for-dev
+  7-3-contextual-suggestion-pills: ready-for-dev
+
+  # Epic 8: Precision Preview (The Direct-Selection Canvas)
+  epic-8: backlog
+  8-1-interactive-iframe-sandbox: ready-for-dev
+  8-2-point-and-click-direct-selector: ready-for-dev
+  8-3-visual-feedback-layer: ready-for-dev
+
+  # Epic 9: History & Hand-off UI
+  epic-9: backlog
+  9-1-visual-history-sidebar: ready-for-dev
+  9-2-side-by-side-code-inspector: ready-for-dev
+  9-3-one-click-export-vibe-switcher: ready-for-dev
