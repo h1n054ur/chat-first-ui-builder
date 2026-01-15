@@ -1,16 +1,15 @@
-name = "test-app"
+name = "chat-first-ui-builder"
 compatibility_date = "2025-08-03"
 main = "./src/index.tsx"
 
 [vars]
-ANTHROPIC_API_KEY = "" # Set via wrangler secret or .dev.vars
 AI_MODEL = "claude-sonnet-4-20250514" # Optional: AI model to use
 
 # D1 Database binding
 [[d1_databases]]
 binding = "DB"
 database_name = "02-db"
-database_id = "local-dev-db" # Replace with actual ID after creation
+database_id = "b3314bae-7220-48e9-8681-f2687ece22cb"
 
 # R2 Bucket binding
 [[r2_buckets]]
@@ -20,7 +19,7 @@ bucket_name = "02-assets"
 # KV Namespace binding
 [[kv_namespaces]]
 binding = "CACHE"
-id = "local-dev-kv" # Replace with actual ID after creation
+id = "d607351d08c04e958ccf4aebcc7f71a5"
 
 # Durable Objects binding
 [[durable_objects.bindings]]
