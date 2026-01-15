@@ -270,7 +270,7 @@ body {
 }
 
 /* ==============================================
-   STORY 7.1 & 7.3: SSE STREAMING UI
+   STORY 7.1, 7.2 & 7.3: SSE STREAMING UI
    Live thinking state and character animation
    ============================================== */
 
@@ -299,6 +299,122 @@ body {
 @keyframes thinking-pulse {
   0%, 100% { opacity: 0.3; transform: scale(0.8); }
   50% { opacity: 1; transform: scale(1); }
+}
+
+/* Story 7.2: Live Thinking Terminal */
+.thinking-terminal {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  width: 100%;
+  max-width: 500px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.thinking-terminal.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.thinking-terminal-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.thinking-terminal-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.thinking-terminal-status .pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: terminal-pulse 1s ease-in-out infinite;
+}
+
+@keyframes terminal-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  50% { box-shadow: 0 0 0 8px transparent; }
+}
+
+.thinking-terminal-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.thinking-terminal-phase {
+  font-size: 11px;
+  color: var(--accent);
+  margin-left: auto;
+  padding: 2px 8px;
+  background: var(--accent-subtle);
+  border-radius: 9999px;
+}
+
+.thinking-terminal-logs {
+  padding: 12px 16px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+}
+
+.thinking-log-entry {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  color: var(--text-muted);
+  opacity: 0;
+  animation: log-fade-in 0.3s ease forwards;
+}
+
+@keyframes log-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.thinking-log-entry .timestamp {
+  color: var(--text-subtle);
+  min-width: 50px;
+}
+
+.thinking-log-entry .message {
+  color: var(--text-muted);
+}
+
+.thinking-log-entry.success .message { color: var(--success); }
+.thinking-log-entry.accent .message { color: var(--accent); }
+
+.thinking-terminal-progress {
+  height: 2px;
+  background: var(--glass-border);
+  overflow: hidden;
+}
+
+.thinking-terminal-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #a855f7);
+  width: 0%;
+  transition: width 0.3s ease;
 }
 
 .stream-text {
@@ -542,6 +658,247 @@ body {
   border-radius: 4px;
   font-family: "IBM Plex Mono", monospace;
   font-size: 11px;
+}
+
+/* Story 8.3: Enhanced OmniBox Command Palette */
+.omnibox-section {
+  padding: 8px 12px;
+}
+
+.omnibox-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  padding: 8px 12px 4px;
+}
+
+.omnibox-suggestion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.omnibox-suggestion-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--glass-hover);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.omnibox-suggestion:hover .omnibox-suggestion-icon,
+.omnibox-suggestion.selected .omnibox-suggestion-icon {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.omnibox-suggestion-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.omnibox-suggestion-title {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.omnibox-suggestion-description {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.omnibox-suggestion-shortcut {
+  font-size: 11px;
+  color: var(--text-subtle);
+}
+
+.omnibox-suggestion-shortcut kbd {
+  padding: 2px 6px;
+  background: var(--glass-hover);
+  border-radius: 4px;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+/* OmniBox loading state */
+.omnibox-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  color: var(--text-muted);
+}
+
+.omnibox-loading .spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--glass-border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==============================================
+   STORY 9.2: TRANSLUCENT CODE EDITOR OVERLAY
+   See-through code panel over canvas
+   ============================================== */
+
+.code-editor-overlay {
+  position: fixed;
+  top: 72px;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  max-width: 700px;
+  z-index: 25;
+  background: rgba(10, 10, 11, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-left: 1px solid var(--glass-border);
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.code-editor-overlay.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.code-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(10, 10, 11, 0.5);
+}
+
+.code-editor-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.code-editor-tab {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.code-editor-tab:hover {
+  color: var(--text);
+  background: var(--glass-hover);
+}
+
+.code-editor-tab.active {
+  color: var(--text);
+  background: var(--accent-subtle);
+}
+
+.code-editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.code-editor-action {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.code-editor-action:hover {
+  color: var(--text);
+  background: var(--glass-hover);
+}
+
+.code-editor-body {
+  height: calc(100% - 52px);
+  overflow: auto;
+  padding: 16px 0;
+}
+
+.code-editor-content {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  padding: 0 20px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.code-editor-line {
+  display: flex;
+}
+
+.code-editor-line-number {
+  min-width: 40px;
+  padding-right: 16px;
+  text-align: right;
+  color: var(--text-subtle);
+  user-select: none;
+}
+
+.code-editor-line-content {
+  flex: 1;
+}
+
+/* Syntax highlighting classes */
+.code-tag { color: #ff7b72; }
+.code-attr { color: #79c0ff; }
+.code-string { color: #a5d6ff; }
+.code-comment { color: var(--text-subtle); font-style: italic; }
+.code-keyword { color: #ff7b72; }
+.code-class { color: #ffa657; }
+
+/* Code editor resize handle */
+.code-editor-resize {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: ew-resize;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.code-editor-resize:hover {
+  background: var(--accent);
 }
 
 /* ==============================================

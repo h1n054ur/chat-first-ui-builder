@@ -20,12 +20,20 @@ interface HistoryItem {
   timestamp: string;
 }
 
+interface ThinkingLog {
+  timestamp: string;
+  message: string;
+  type?: 'default' | 'success' | 'accent';
+}
+
 interface UtilityMasterProps {
   projectId: string;
   vibeId?: string;
   componentJsx?: string;
   history?: HistoryItem[];
   isStreaming?: boolean;
+  streamingPhase?: string;
+  thinkingLogs?: ThinkingLog[];
   selectedElement?: { tag: string; classes: string[] } | null;
 }
 
@@ -35,6 +43,8 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
   componentJsx = '',
   history = [],
   isStreaming = false,
+  streamingPhase = 'Generating...',
+  thinkingLogs = [],
   selectedElement = null
 }) => {
   const iframeScript = `
@@ -346,7 +356,7 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
         </div>
       </aside>
 
-      {/* Floating OmniBox (Cmd+K) */}
+      {/* Story 8.3: Floating OmniBox Command Palette (Cmd+K) */}
       <div class="omnibox-backdrop" id="omnibox-backdrop" onclick="this.classList.remove('visible'); document.getElementById('omnibox').classList.remove('visible');"></div>
       <div class="omnibox" id="omnibox">
         {selectedElement && (
@@ -364,19 +374,98 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
               type="text" 
               name="prompt" 
               class="omnibox-input" 
-              placeholder={selectedElement ? "Describe the change..." : "Describe your component..."} 
+              placeholder={selectedElement ? "Describe the change..." : "What would you like to build?"} 
               id="omnibox-input"
               autocomplete="off"
             />
           </form>
         </div>
-        <div class="omnibox-suggestions">
-          <div class="omnibox-suggestion" onclick="document.getElementById('omnibox-input').value='Make it more premium'; document.getElementById('omnibox-form').submit();">Make it more premium</div>
-          <div class="omnibox-suggestion" onclick="document.getElementById('omnibox-input').value='Add more breathing room'; document.getElementById('omnibox-form').submit();">Add more breathing room</div>
-          <div class="omnibox-suggestion" onclick="document.getElementById('omnibox-input').value='Make it feel calmer'; document.getElementById('omnibox-form').submit();">Make it feel calmer</div>
+        
+        {/* Command sections */}
+        <div class="omnibox-suggestions" id="omnibox-suggestions">
+          {/* Quick Actions */}
+          <div class="omnibox-section-title">Quick Actions</div>
+          <div class="omnibox-suggestion" onclick="document.getElementById('code-editor-overlay').classList.toggle('visible'); document.getElementById('omnibox-backdrop').classList.remove('visible'); document.getElementById('omnibox').classList.remove('visible');">
+            <div class="omnibox-suggestion-icon">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+            </div>
+            <div class="omnibox-suggestion-content">
+              <div class="omnibox-suggestion-title">Toggle Code Editor</div>
+              <div class="omnibox-suggestion-description">View and edit the generated code</div>
+            </div>
+            <div class="omnibox-suggestion-shortcut"><kbd>Cmd+E</kbd></div>
+          </div>
+          
+          <div class="omnibox-suggestion" onclick="fetch('/api/projects/'+'{projectId}'+'/undo',{method:'POST'}).then(()=>location.reload())">
+            <div class="omnibox-suggestion-icon">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+              </svg>
+            </div>
+            <div class="omnibox-suggestion-content">
+              <div class="omnibox-suggestion-title">Undo Last Change</div>
+              <div class="omnibox-suggestion-description">Revert to previous state</div>
+            </div>
+            <div class="omnibox-suggestion-shortcut"><kbd>Cmd+Z</kbd></div>
+          </div>
+          
+          <div class="omnibox-suggestion" onclick={`navigator.clipboard.writeText(${JSON.stringify(componentJsx || '')}).then(()=>{document.getElementById('omnibox-backdrop').classList.remove('visible'); document.getElementById('omnibox').classList.remove('visible'); alert('Copied to clipboard!');})`}>
+            <div class="omnibox-suggestion-icon">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div class="omnibox-suggestion-content">
+              <div class="omnibox-suggestion-title">Copy Code</div>
+              <div class="omnibox-suggestion-description">Copy JSX to clipboard</div>
+            </div>
+            <div class="omnibox-suggestion-shortcut"><kbd>Cmd+C</kbd></div>
+          </div>
+          
+          {/* Design Nudges */}
+          <div class="omnibox-section-title">Design Nudges</div>
+          <div class="omnibox-suggestion" onclick="document.getElementById('omnibox-input').value='Make it more premium and polished'; document.getElementById('omnibox-form').submit();">
+            <div class="omnibox-suggestion-icon">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </div>
+            <div class="omnibox-suggestion-content">
+              <div class="omnibox-suggestion-title">Make it Premium</div>
+              <div class="omnibox-suggestion-description">Add polish and refinement</div>
+            </div>
+          </div>
+          
+          <div class="omnibox-suggestion" onclick="document.getElementById('omnibox-input').value='Add more breathing room and whitespace'; document.getElementById('omnibox-form').submit();">
+            <div class="omnibox-suggestion-icon">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            </div>
+            <div class="omnibox-suggestion-content">
+              <div class="omnibox-suggestion-title">More Breathing Room</div>
+              <div class="omnibox-suggestion-description">Increase spacing and whitespace</div>
+            </div>
+          </div>
+          
+          <div class="omnibox-suggestion" onclick="document.getElementById('omnibox-input').value='Make it feel calmer and more minimal'; document.getElementById('omnibox-form').submit();">
+            <div class="omnibox-suggestion-icon">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            </div>
+            <div class="omnibox-suggestion-content">
+              <div class="omnibox-suggestion-title">Make it Calmer</div>
+              <div class="omnibox-suggestion-description">Reduce visual noise, soften colors</div>
+            </div>
+          </div>
         </div>
+        
         <div class="omnibox-hint">
-          <span><kbd>Enter</kbd> to submit</span>
+          <span><kbd>↑</kbd><kbd>↓</kbd> to navigate</span>
+          <span><kbd>Enter</kbd> to select</span>
           <span><kbd>Esc</kbd> to close</span>
         </div>
       </div>
@@ -391,8 +480,99 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
         </div>
       </div>
 
+      {/* Story 7.2: Live Thinking Terminal */}
+      <div class={`thinking-terminal ${isStreaming ? 'visible' : ''}`} id="thinking-terminal">
+        <div class="thinking-terminal-header">
+          <div class="thinking-terminal-status">
+            <div class="pulse"></div>
+            <span class="thinking-terminal-title">AI is thinking</span>
+          </div>
+          <span class="thinking-terminal-phase">{streamingPhase}</span>
+        </div>
+        <div class="thinking-terminal-logs" id="thinking-logs">
+          {thinkingLogs.length > 0 ? (
+            thinkingLogs.map((log, i) => (
+              <div key={i} class={`thinking-log-entry ${log.type || ''}`}>
+                <span class="timestamp">{log.timestamp}</span>
+                <span class="message">{log.message}</span>
+              </div>
+            ))
+          ) : (
+            <>
+              <div class="thinking-log-entry">
+                <span class="timestamp">0.0s</span>
+                <span class="message">Initializing request...</span>
+              </div>
+              <div class="thinking-log-entry accent">
+                <span class="timestamp">0.1s</span>
+                <span class="message">Loading vibe tokens: {vibeId}</span>
+              </div>
+              <div class="thinking-log-entry">
+                <span class="timestamp">0.2s</span>
+                <span class="message">Streaming from Claude...</span>
+              </div>
+            </>
+          )}
+        </div>
+        <div class="thinking-terminal-progress">
+          <div class="thinking-terminal-progress-bar" id="thinking-progress" style="width: 30%;"></div>
+        </div>
+      </div>
+
+      {/* Story 9.2: Translucent Code Editor Overlay */}
+      <div class="code-editor-overlay" id="code-editor-overlay">
+        <div class="code-editor-resize" id="code-editor-resize"></div>
+        <div class="code-editor-header">
+          <div class="code-editor-tabs">
+            <button class="code-editor-tab active">JSX</button>
+            <button class="code-editor-tab">CSS</button>
+            <button class="code-editor-tab">Preview</button>
+          </div>
+          <div class="code-editor-actions">
+            <button 
+              class="code-editor-action" 
+              title="Copy code"
+              onclick={`navigator.clipboard.writeText(${JSON.stringify(componentJsx || '')}).then(()=>alert('Copied!'))`}
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+            <button 
+              class="code-editor-action" 
+              title="Close (Cmd+E)"
+              onclick="document.getElementById('code-editor-overlay').classList.remove('visible');"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="code-editor-body">
+          <div class="code-editor-content">
+            {componentJsx ? (
+              componentJsx.split('\n').map((line, i) => (
+                <div key={i} class="code-editor-line">
+                  <span class="code-editor-line-number">{i + 1}</span>
+                  <span class="code-editor-line-content">{line || ' '}</span>
+                </div>
+              ))
+            ) : (
+              <div class="code-editor-line">
+                <span class="code-editor-line-number">1</span>
+                <span class="code-editor-line-content code-comment">{'// Generate a component to see code here'}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Keyboard Shortcuts & postMessage Handler */}
       <script dangerouslySetInnerHTML={{__html: `
+        // Track selected suggestion index for keyboard nav
+        let selectedSuggestionIndex = -1;
+        
         // Cmd+K - Open OmniBox
         document.addEventListener('keydown', function(e) {
           if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -400,25 +580,62 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
             document.getElementById('omnibox-backdrop').classList.add('visible');
             document.getElementById('omnibox').classList.add('visible');
             document.getElementById('omnibox-input').focus();
+            selectedSuggestionIndex = -1;
+            updateSuggestionSelection();
           }
-          // Escape - Close OmniBox
+          
+          // Escape - Close modals
           if (e.key === 'Escape') {
             document.getElementById('omnibox-backdrop').classList.remove('visible');
             document.getElementById('omnibox').classList.remove('visible');
+            document.getElementById('code-editor-overlay').classList.remove('visible');
           }
+          
           // Cmd+B - Toggle left panel
           if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
             e.preventDefault();
             document.getElementById('panel-left').classList.toggle('collapsed');
             document.getElementById('void-canvas').classList.toggle('left-collapsed');
           }
-          // Cmd+I - Toggle right panel
+          
+          // Cmd+I - Toggle right panel (inspector)
           if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
             e.preventDefault();
             document.getElementById('panel-right').classList.toggle('collapsed');
             document.getElementById('void-canvas').classList.toggle('right-collapsed');
           }
+          
+          // Cmd+E - Toggle code editor overlay (Story 9.2)
+          if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+            e.preventDefault();
+            document.getElementById('code-editor-overlay').classList.toggle('visible');
+          }
+          
+          // Arrow keys for OmniBox navigation
+          const omnibox = document.getElementById('omnibox');
+          if (omnibox && omnibox.classList.contains('visible')) {
+            const suggestions = document.querySelectorAll('.omnibox-suggestion');
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, suggestions.length - 1);
+              updateSuggestionSelection();
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, -1);
+              updateSuggestionSelection();
+            } else if (e.key === 'Enter' && selectedSuggestionIndex >= 0) {
+              e.preventDefault();
+              suggestions[selectedSuggestionIndex].click();
+            }
+          }
         });
+        
+        function updateSuggestionSelection() {
+          const suggestions = document.querySelectorAll('.omnibox-suggestion');
+          suggestions.forEach((s, i) => {
+            s.classList.toggle('selected', i === selectedSuggestionIndex);
+          });
+        }
 
         // Story 8.1: Handle postMessage from iframe
         window.addEventListener('message', function(e) {
@@ -439,6 +656,27 @@ export const UtilityMaster: FC<UtilityMasterProps> = ({
             }
           }
         });
+        
+        // Story 7.2: Update thinking terminal during SSE
+        function updateThinkingTerminal(phase, progress, log) {
+          const terminal = document.getElementById('thinking-terminal');
+          const phaseEl = terminal.querySelector('.thinking-terminal-phase');
+          const progressBar = document.getElementById('thinking-progress');
+          const logsContainer = document.getElementById('thinking-logs');
+          
+          if (phaseEl) phaseEl.textContent = phase;
+          if (progressBar) progressBar.style.width = progress + '%';
+          if (log && logsContainer) {
+            const entry = document.createElement('div');
+            entry.className = 'thinking-log-entry';
+            entry.innerHTML = '<span class="timestamp">' + (Date.now() / 1000).toFixed(1) + 's</span><span class="message">' + log + '</span>';
+            logsContainer.appendChild(entry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+          }
+        }
+        
+        // Expose for SSE handler
+        window.updateThinkingTerminal = updateThinkingTerminal;
       `}} />
     </div>
   );

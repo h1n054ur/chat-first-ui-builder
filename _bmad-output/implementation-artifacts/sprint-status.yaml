@@ -50,6 +50,7 @@ development_status:
   # Epic 7: Real-Time SSE Pipeline
   epic-7: done
   7-1-surgical-sse-emitter: done
+  7-2-live-thinking-state: done
   7-3-character-by-character-patching: done
   epic-7-retrospective: optional
 
@@ -57,9 +58,11 @@ development_status:
   epic-8: done
   8-1-bidirectional-postmessage-sync: done
   8-2-indigo-selector-overlay: done
+  8-3-floating-omnibox: done
   epic-8-retrospective: optional
 
   # Epic 9: Professional Refinement
   epic-9: done
   9-1-visual-diff-ghosting: done
+  9-2-translucent-code-editor-overlay: done
   epic-9-retrospective: optional

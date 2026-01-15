@@ -15,6 +15,7 @@ import { getComponentGenerationPrompt } from './prompts';
 /** Stream event types */
 export type StreamEventType = 
   | 'status'      // Status update (e.g., "Planning...")
+  | 'thinking'    // Story 7.2: Thinking log for terminal display
   | 'token'       // Single character/token from AI
   | 'fragment'    // JSX fragment for surgical patching
   | 'complete'    // Generation complete
@@ -27,16 +28,27 @@ export interface StreamEvent {
   timestamp: number;
 }
 
-/** Status messages for different phases */
+/** Status messages for different phases (Story 7.2: Live Thinking State) */
 export const STATUS_MESSAGES = {
   PLANNING: 'Planning structure...',
+  ANALYZING: 'Analyzing intent...',
   APPLYING_VIBE: 'Applying design tokens...',
   GENERATING: 'Generating...',
+  STREAMING: 'Streaming from Claude...',
   PATCHING: 'Patching DOM...',
+  APPLYING_STYLES: 'Applying Tailwind classes...',
   FINALIZING: 'Finalizing...',
   COMPLETE: 'Done',
   ERROR: 'Error occurred',
 } as const;
+
+/** Thinking log entry for Story 7.2 */
+export interface ThinkingLogEntry {
+  timestamp: number;
+  phase: string;
+  message: string;
+  progress: number;
+}
 
 /**
  * Create an SSE formatted message
@@ -60,10 +72,17 @@ export async function* streamComponentGeneration(
   const startTime = Date.now();
   let accumulatedJsx = '';
 
-  // Emit planning status immediately (TTFT < 500ms)
+  // Story 7.2: Emit planning status immediately (TTFT < 500ms)
   yield {
     type: 'status',
     data: STATUS_MESSAGES.PLANNING,
+    timestamp: Date.now() - startTime,
+  };
+  
+  // Story 7.2: Emit thinking log for terminal
+  yield {
+    type: 'thinking',
+    data: JSON.stringify({ phase: 'Planning', message: 'Analyzing component requirements...', progress: 10 }),
     timestamp: Date.now() - startTime,
   };
 
@@ -74,10 +93,16 @@ export async function* streamComponentGeneration(
       userPrompt = `Context: ${context}\n\nRequest: ${prompt}`;
     }
 
-    // Emit vibe application status
+    // Story 7.2: Emit vibe application status with thinking log
     yield {
       type: 'status',
       data: STATUS_MESSAGES.APPLYING_VIBE,
+      timestamp: Date.now() - startTime,
+    };
+    
+    yield {
+      type: 'thinking',
+      data: JSON.stringify({ phase: 'Vibe', message: `Loading vibe tokens: ${vibe.name || 'default'}`, progress: 25 }),
       timestamp: Date.now() - startTime,
     };
 
@@ -89,10 +114,16 @@ export async function* streamComponentGeneration(
       messages: [{ role: 'user', content: userPrompt }],
     });
 
-    // Emit generating status
+    // Story 7.2: Emit generating status with thinking log
     yield {
       type: 'status',
-      data: STATUS_MESSAGES.GENERATING,
+      data: STATUS_MESSAGES.STREAMING,
+      timestamp: Date.now() - startTime,
+    };
+    
+    yield {
+      type: 'thinking',
+      data: JSON.stringify({ phase: 'Streaming', message: 'Connected to Claude, receiving tokens...', progress: 40 }),
       timestamp: Date.now() - startTime,
     };
 
@@ -128,11 +159,25 @@ export async function* streamComponentGeneration(
       data: accumulatedJsx,
       timestamp: Date.now() - startTime,
     };
+    
+    // Story 7.2: Emit finalizing thinking log
+    yield {
+      type: 'thinking',
+      data: JSON.stringify({ phase: 'Finalizing', message: 'Applying final optimizations...', progress: 95 }),
+      timestamp: Date.now() - startTime,
+    };
 
     // Emit completion
     yield {
       type: 'complete',
       data: accumulatedJsx,
+      timestamp: Date.now() - startTime,
+    };
+    
+    // Story 7.2: Emit complete thinking log
+    yield {
+      type: 'thinking',
+      data: JSON.stringify({ phase: 'Complete', message: 'Generation complete!', progress: 100 }),
       timestamp: Date.now() - startTime,
     };
 
